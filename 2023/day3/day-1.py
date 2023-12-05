@@ -76,7 +76,10 @@ for y in range(len(tab)):
                 debug("Ignore ["+str(x)+","+str(y)+"]"+str(curNumber))
             curNumber = 0
             curNumberOk = False
-    total += curNumber
+    if curNumberOk:
+        total += curNumber
+    elif curNumber>0:
+        debug("Ignore ["+str(x)+","+str(y)+"]"+str(curNumber))
     curNumber = 0
     curNumberOk = False
 

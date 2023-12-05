@@ -14,32 +14,26 @@ def debug(string):
     string=string
     #print(string)
 
-#Game 1: 3 blue, 4 red; 1 red, 2 green, 6 blue; 2 green
-def getGameNumber(str):
-    number=str[:str.find(":")][4:]
-    debug( "Partie : " + number)
-    return int(number)
-
-def getMaxByColor(color, string):
-    #le debut sert a rien
-    string = string[string.find(":")+1:].strip()
-    maximum = 0
-    for hand in string.split(";"):
-        hand = hand.strip()
-        for value in hand.split(","):
-            value = value.strip()
-            if value.endswith(color):
-                count = int(value[:value.find(" ")].strip())
-                maximum = max(maximum, count)
-    debug( "max("+color+")="+str(maximum));
-    return maximum
-
-total = 0
+digits=['1','2','3','4','5','6','7','8','9','0']
+tab = []
 for line in lines:
     line=line.strip()
     debug(line)
-    gameNumber = getGameNumber(line)
-    debug("OK pour la partie "+str(gameNumber)+" => "+str(getMaxByColor("blue", line)*getMaxByColor("green", line)*getMaxByColor("red", line)))
-    total += getMaxByColor("blue", line)*getMaxByColor("green", line)*getMaxByColor("red", line)
+    tab.append(line)
 
+def debug(string):
+    string=string
+    print(string)
+
+
+
+total = 0
+curNumber = 0
+for y in range(len(tab)):
+    #debug("Ligne "+str(y)+" => "+tab[y])
+    for x in range(len(tab[y])):
+        #debug("Colonne "+str(x)+" => "+tab[y][x])
+        curCar=tab[y][x]
+        if curCar == "*":
+            print("*")
 print(total)
