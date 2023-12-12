@@ -12,28 +12,47 @@ lines = file.readlines();
 
 def debug(string):
     string=string
-    #print(string)
+    print(string)
 
-digits=['1','2','3','4','5','6','7','8','9','0']
 tab = []
+cardCopyTab = []
+
+
 for line in lines:
     line=line.strip()
     debug(line)
     tab.append(line)
+    cardCopyTab.append(1)
 
-def debug(string):
-    string=string
-    print(string)
+#Card 1: 41 48 83 86 17 | 83 86  6 31 17  9 48 53
 
+def getCardNumber(str):
+    return str[:str.find(":")][str.find(" "):].strip()
+
+def getWiningNumbers(str):
+    return str[:str.find("|")][str.find(":")+1:].strip()
+
+def getPlayingNumbers(str):
+    return str[str.find("|")+1:].strip()
+
+print(str(cardCopyTab))
+total = 0
+for y in range(len(tab)):
+    cardMatch = 0
+    for curNum in getPlayingNumbers(tab[y]).split(" "):
+        if len(curNum) == 0:
+            continue
+        if (" "+curNum+" ") in " "+getWiningNumbers(tab[y])+" ":
+            cardMatch+=1
+    for i in range(cardMatch):
+        cardCopyTab[y+i+1]+=cardCopyTab[y]
+    debug( getCardNumber(tab[y]) + "==>" + getWiningNumbers(tab[y]) + "==>" + getPlayingNumbers(tab[y]) +" ====== " + str(cardMatch))
+    print(str(cardCopyTab))
 
 
 total = 0
-curNumber = 0
-for y in range(len(tab)):
-    #debug("Ligne "+str(y)+" => "+tab[y])
-    for x in range(len(tab[y])):
-        #debug("Colonne "+str(x)+" => "+tab[y][x])
-        curCar=tab[y][x]
-        if curCar == "*":
-            print("*")
+for i in cardCopyTab:
+    total += i
+
+print(str(cardCopyTab))
 print(total)
