@@ -12,64 +12,11 @@ lines = file.readlines();
 
 def debug(string):
     string=string
-#    print(string)
+    print(string)
 
 def trace(string):
     string=string
     print(string)
-
-
-tab=[]
-seeds = []
-maps = {}
-
-
-for line in lines:
-    line=line.strip()
-    debug(line)
-    tab.append(line)
-
-def getSeeds(string):
-    seeds = list(map(int,string[7:].split(" ")))
-    debug("Seeds => "+ str(seeds))
-    return seeds
-
-def compute( map, start, end):
-    intervals = []
-    curInterval = {}
-    value = start
-    for trig in map:
-        if value >= trig["start"] and value <= trig["end"]:
-            curInterval["start"]=value+trig["trigger"]
-            if end <= trig["end"]:
-                curInterval["end"]=end+trig["trigger"]
-            else:
-                curInterval["end"]=trig["end"]
-                value = trig["end"]+1
-            intervals.append(curInterval)
-    return intervals
-
-
-def getMaped(seeds):
-    output = 99999999999999999999
-    for seed in seeds:
-        output = min(output, getFinalValue(seed))
-        
-    #debug("minvalue: "+str(min(output)))
-    return output
-
-def getFinalValue(seed):
-    debug("Seed : " + str(seed))
-    value = seed
-    for map in maps:
-        debug( "    " + map)
-        for trig in maps[map]:
-            if value >= trig["start"] and value <= trig["end"]:
-                value += trig["trigger"]
-                debug("        "+str(trig))
-                break
-        debug("    =>"+ str(value))
-    return value
 
 # Print iterations progress
 def printProgressBar (iteration, total, prefix = '', suffix = '', decimals = 1, length = 100, fill = '█', printEnd = "\r"):
@@ -93,6 +40,54 @@ def printProgressBar (iteration, total, prefix = '', suffix = '', decimals = 1, 
     if iteration == total: 
         print()
 
+tab=[]
+seeds = []
+maps = {}
+
+for line in lines:
+    line=line.strip()
+    debug(line)
+    tab.append(line)
+
+def getSeeds(string):
+    seeds = list(map(int,string[7:].split(" ")))
+    debug("Seeds => "+ str(seeds))
+    return seeds
+
+def computeMapSeed( map, seed):
+    debug("compute("+str(map)+","+str(seed)+")")
+    result = []
+    intervals = []
+    intervals.append(seed)
+    for trig in map:
+        intervals2=[]
+        for interval in intervals:
+            res = intersect(interval, {"start":trig["start"],"end":trig["end"]})
+            #traitement des resultats
+            intervals2.extend(res["out"])
+            for int in res["in"]:
+                result.append({"start":int["start"]+trig["trigger"],"end":int["end"]+trig["trigger"]})   
+        intervals=intervals2
+    debug("in=>"+str(result))
+    debug("out=>"+str(intervals))
+    result.extend(intervals)    
+    return result
+
+def intersect(seed, map):
+    debug("intersect("+str(seed)+","+str(map)+")")
+    res = {"in":[],"out":[]}
+    if seed["start"]>map["end"] or seed["end"]<map["start"]:
+        res["out"].append(seed);
+    elif seed["start"]>=map["start"] and seed["end"]<=map["end"]:
+        res["in"].append(seed)
+    elif seed["start"]<map["start"] and seed["end"]<map["end"]:
+        res["in"].append({"start":map["start"],"end":seed["end"]})
+        res["out"].append({"start":seed["start"],"end":map["start"]-1})
+    elif seed["start"]>=map["start"] and seed["end"]>map["end"]:
+        res["in"].append({"start":seed["start"],"end":map["end"]})
+        res["out"].append({"start":map["end"]+1,"end":seed["end"]})
+    return res
+
 curMap = ""
 for y in range(len(tab)):
     line = str(tab[y])        
@@ -106,14 +101,35 @@ for y in range(len(tab)):
 
 out = 999999999999999999999999
 seeds = getSeeds(tab[0])
+intervals = []
 for i in range(int(len(seeds)/2)):
-    filled = []
-    trace("Seeds :" + str(seeds[2*i]) + " => " +str(seeds[2*i]+seeds[2*i+1]))
-    printProgressBar(0, seeds[2*i+1], prefix = 'Progress:', suffix = 'Complete', length = 150)
-    for j in range(seeds[2*i], seeds[2*i]+seeds[2*i+1]):
-        printProgressBar(j-seeds[2*i], seeds[2*i+1], prefix = 'Progress:', suffix = 'Complete', length = 150)
-        out=min(out, getFinalValue(j))
-    printProgressBar(j-seeds[2*i]+1, seeds[2*i+1], prefix = 'Progress:', suffix = 'Complete', length = 150)
-    trace("")
-    trace("==>" + str(out))
+    intervals.append({"start":seeds[2*i],"end":seeds[2*i]+seeds[2*i+1]})
+
+debug("intervals:"+str(intervals))
+for map in maps:
+    debug(map+" : " +str(maps[map]))
+
+debug("")
+debug("COMPUTE")
+debug("")
+
+progress = 0
+#printProgressBar(progress, len(intervals)+len(maps), prefix = 'Progress:', suffix = 'Complete', length = 150)
+results=[]
+for interval in intervals:
+    debug("Seed:"+str(interval))
+    mapInts = [interval]
+    for map in maps:
+        debug(str(map))
+        mapTmp=[]
+        #printProgressBar(++progress, len(intervals)+len(maps), prefix = 'Progress:', suffix = 'Complete', length = 150)
+        for mapInt in mapInts:
+            mapTmp.extend(computeMapSeed(maps[map], mapInt))
+        mapInts = mapTmp
+    results.extend(mapInts)
+debug(str(results))        
+for val in results:
+    if val["start"] < out:
+        out = val["start"]
+        
 trace(str(out))
