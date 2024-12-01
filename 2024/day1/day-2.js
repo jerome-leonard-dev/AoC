@@ -1,6 +1,6 @@
 const fs = require('fs');
 
-fs.readFile('test', 'utf8', (err, data) => {
+fs.readFile('input', 'utf8', (err, data) => {
     if (err) {
       console.error(err);
       return;
@@ -23,25 +23,14 @@ fs.readFile('test', 'utf8', (err, data) => {
     3   9
     3   3
 */
-    left = left.sort();
-    right = right.sort();
-/*
-    1   3
-    2   3
-    3   3
-    3   4
-    3   5
-    4   9
-*/
+
+    let factor = [];
+    for( let i = 0; i < right.length; i++){
+      factor[right[i]] = isNaN(factor[right[i]])?1:factor[right[i]]+1;
+    }
     let total = 0;
-    let j = 0;
     for( let i = 0; i < left.length; i++){
-        console.log(i+"=>"+left[i]+"   ->    "+total);
-        while(left[i]>=right[j]){
-          total+=left[i];
-          console.log("  "+i+"=>"+left[i]+"   ->    "+total);
-          j++;
-        }
+      total += isNaN(factor[left[i]])?0:+(left[i]*factor[left[i]]);
     }
     console.log("Résultat: " + total);
   });
