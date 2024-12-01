@@ -86,6 +86,11 @@ def intersect(seed, map):
     elif seed["start"]>=map["start"] and seed["end"]>map["end"]:
         res["in"].append({"start":seed["start"],"end":map["end"]})
         res["out"].append({"start":map["end"]+1,"end":seed["end"]})
+    elif seed["start"]<map["start"] and seed["end"]>map["end"]:
+        res["in"].append({"start":map["start"],"end":map["end"]})
+        res["out"].append({"start":seed["start"],"end":map["start"]-1})
+        res["out"].append({"start":map["end"]+1,"end":seed["end"]})
+    trace(str(res))
     return res
 
 curMap = ""
@@ -103,7 +108,7 @@ out = 999999999999999999999999
 seeds = getSeeds(tab[0])
 intervals = []
 for i in range(int(len(seeds)/2)):
-    intervals.append({"start":seeds[2*i],"end":seeds[2*i]+seeds[2*i+1]})
+    intervals.append({"start":seeds[2*i],"end":seeds[2*i]+seeds[2*i+1]-1})
 
 debug("intervals:"+str(intervals))
 for map in maps:
@@ -124,7 +129,9 @@ for interval in intervals:
         mapTmp=[]
         #printProgressBar(++progress, len(intervals)+len(maps), prefix = 'Progress:', suffix = 'Complete', length = 150)
         for mapInt in mapInts:
-            mapTmp.extend(computeMapSeed(maps[map], mapInt))
+            m=computeMapSeed(maps[map], mapInt)
+            trace(str(m))
+            mapTmp.extend(m)
         mapInts = mapTmp
     results.extend(mapInts)
 debug(str(results))        
