@@ -7,30 +7,9 @@ fs.readFile('input', 'utf8', (err, data) => {
   }
 
   let total = 0;
-  const lines = data.split('\n');
-  lines.forEach(line => {
-    const blocs = line.split(' ');
-    const asc = (blocs[1] * 1) > (blocs[0] * 1);
-    total++;
-    if (asc) {
-      for (let i = 1; i < blocs.length; i++) {
-        const diff = blocs[i] * 1 - blocs[i - 1] * 1;
-        if (diff < 1 || diff > 3) {
-          total--;
-          break;
-        }
-      }
-    } else {
-      for (let i = 1; i < blocs.length; i++) {
-        const diff = blocs[i] * 1 - blocs[i - 1] * 1;
-        if (diff < -3 || diff > -1) {
-          total--;
-          break;
-        }
-      }
-    }
-  });
-
-
+  for( const match of data.matchAll(/mul\([0-9]{1,3},[0-9]{1,3}\)/g)){
+    const values = match[0].substr(4, match[0].length-5).split(',');
+    total += (values[0]*1)*(values[1]*1);
+  }
   console.log("Résultat: " + total);
 });
