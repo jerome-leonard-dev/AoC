@@ -7,45 +7,49 @@ fs.readFile('input', 'utf8', (err, data) => {
   }
   let total = 0;
 
-
-/*
-190: 10 19
-3267: 81 40 27
-7290: 6 8 6 15
-*/
-//21:45
+  let map = {};
   const lines = data.split('\n');
+  const maxX = lines[0].length;
+  const maxY = lines.length;
   for( let i = 0; i < lines.length; i++){
-      const ln = lines[i].split(':');
-      const item = {sum:ln[0]*1, values:ln[1].trim().split(' ').map(x=>x*1)};
-      if( validateItem(item).length !=0){
-        total+= item.sum;
+      const cars = lines[i].split('');
+      for( let j = 0; j < cars.length; j++){
+        const car = cars[j];
+      if( car == '.')continue;
+        if(map[car] == undefined){
+          map[car]=[];
+        }
+        map[car].push({y:i,x:j});
       }
   }
+
+  let antinodes = []
+  for( var key in map) {
+    console.log(key+"=>"+JSON.stringify(map[key]));
+    const antenas = map[key];
+    for( i = 0; i < antenas.length;i++) {
+      const ref = antenas[i];
+      for( j = 0; j < antenas.length; j++) {
+        const check = antenas[j];
+        //console.log(JSON.stringify(ref)+" Vs "+JSON.stringify(check));
+        if( check.x == ref.x && check.y == ref.y)continue;
+        const antinode = {y:ref.y+(ref.y-check.y),x:ref.x+(ref.x-check.x)}; //{"y":1,"x":8} Vs {"y":2,"x":5}->{y:0,x:11}
+        if(antinode.x >=0 && antinode.x < maxX && antinode.y >= 0 && antinode.y < maxY){
+          //console.log("    "+JSON.stringify(antinode));
+          antinodes.push(antinode);
+        }
+      }
+    }
+  };
+  
+  console.log(JSON.stringify(antinodes));
+
+  total = dedoublonne(antinodes).length;
 
   console.log("Total: "+total);
 
 });
 
-function validateItem(item){
-  let results = [];
-  for(i = 0; i < 2**(item.values.length-1);i++){
-    let tot = item.values[0];
-    let calc = ""+item.values[0];
-    for( j = 0; j< item.values.length-1; j++){
-      if((i&(2**j)) == (2**j)){
-        calc += ("+"+item.values[j+1]);
-        tot += item.values[j+1];
-      }else{
-        calc += ("*"+item.values[j+1]);
-        tot *= item.values[j+1];
-      }
-    }
-    console.debug("    " + calc+":"+tot);
-    if( tot == item.sum){
-      results.push(calc);
-    }
-  }
-  console.debug(JSON.stringify(item) + "" + results);
-  return results;
+function dedoublonne(items) {
+  return items.filter((o, index, arr) => arr.findIndex(item => item.x === o.x && item.y === o.y) === index);
 }
