@@ -8,33 +8,22 @@ function main(input = 'input', num = ''){
       return;
     }
 
-    //125 17
-    let stones = data.split(' ').map(x=>BigInt(x));
-    for( let i = 0; i < 75; i++){
-      const start = Date.now();
-      let tmp = await processData(stones);
-
-      console.log ((""+(Date.now()-start)).padStart(10,"0")+":"+ (""+i).padStart(4,' ')+" : "+(""+tmp.length).padStart(20,' ') +" : "+new Date().toString());
-      console.log(tmp.join(' '));
-      stones = tmp;
-    }
-
-
-    const batchSize = 100000; // Taille d'un lot
-    let i = 0;
-    for (; i*batchSize < stones.length; i++) {
-      try {
-        fs.writeFileSync('int'+(i+1), stones.slice(i*batchSize, (i +1)*batchSize).join(' '));
-      } catch (err) {
-        console.error(err);
+    let total = 0;
+    let datas = data.split(' ').map(x=>BigInt(x));
+    for(let j=0; j < datas.length; j++){
+      let stones = [datas[j]];
+      for( let i = 0; i < 38; i++){
+        const start = Date.now();
+        let tmp = await processData(stones);
+        //console.log ((""+(Date.now()-start)).padStart(10,"0")+":"+ (""+i).padStart(4,' ')+" : "+(""+tmp.length).padStart(20,' ') +" : "+new Date().toString());
+        stones = tmp;
       }
+      total += stones.length;
     }
 
-
-    console.log("Total: "+stones.length);
-    console.log("Chuncks: "+i);
+    console.log(input+num+" Total: "+total);
     console.log(new Date().toString());
-    return i;
+
   });
 
   const blinkStones = (values) => {
